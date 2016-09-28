@@ -1,3 +1,5 @@
 * first install node
 * then `npm i`
-* and finally `npm start`
+* then `npm start`
+* at ran `localhost:8082`
+

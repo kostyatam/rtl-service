@@ -1,5 +1,5 @@
 'use strict';
-
+let config = require('./config');
 let WebSocketServer = new require('ws');
 
 let wsServer = new WebSocketServer.Server({
@@ -77,13 +77,13 @@ app.get('/api/status/:id', function (req, res) {
 
 setInterval(function () {
     location.update();
-}, 500);
+}, config.L);
 
 setInterval(function () {
     status.update();
-}, 1000);
+}, config.S);
 
 
 app.listen(8082, function () {
-    console.log('server is listening on 8080 port');
+    console.log('server is listening on 8082 port');
 });
