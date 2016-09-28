@@ -26,20 +26,21 @@ function Location (options) {
 Location.prototype.get = function () {
     return this.locations.slice(0);
 };
-
+let u = 0;
 Location.prototype.update = function () {
-    var locations = this.locations;
-    locations.map(function (item, index) {
-        if (Math.random() < .5) return;
+    var that = this;
+    this.locations = this.locations.map(function (item, index) {
+        if (Math.random() < .5) return item;
         item.location = faker.getLocation({
-            lat: [item.location.lat - 5, item.location.lat + 5],
-            lon: [item.location.lon - 5, item.location.lon + 5]
+            lat: [item.location.lat - .01, item.location.lat + .01],
+            lon: [item.location.lon - .01, item.location.lon + .01]
         });
-        var saved = this.saved;
+        var saved = that.saved;
         for (var diff in saved) {
-            if (!saved.hasOwnProperty(diff)) return;
-            saved[index] = item.location;
+            if (!saved.hasOwnProperty(diff)) continue;
+            saved[diff][item.mac] = item.location;
         };
+        return item;
     });
     this.emit('update');
 };

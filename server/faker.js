@@ -32,15 +32,15 @@ Faker.prototype.getLocation = function getLocation (params) {
 };
 
 Faker.prototype.getLat = function getLon (min, max) {
-    var min = (min || min === 0) ? min : -90,
-        max = (max || max === 0) ? max : 90;
+    var min = (min > -90) ? min : -90,
+        max = (max < 90) ? max : 90;
 
     return random() * (max - min) + min;
 };
 
 Faker.prototype.getLon = function getLat (min, max) {
-    var min = (min || min === 0) ? min : -180,
-        max = (max || max === 0) ? max : 180;
+    var min = (min > -180) ? min : -180,
+        max = (max  < 180) ? max : 180;
 
     return random() * (max - min) + min;
 };

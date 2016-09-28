@@ -14,44 +14,77 @@ let location = new Location({
 });
 
 let Status = require('./status');
-let status = new Status(location.locations);
+let status = new Status(location.get());
 
 let express = require('express');
 
 let app = express();
 let path = require('path');
-var id = 0;
+var locationId = 0;
+var statusId = 0;
 
 wsServer.on('connection', function (ws) {
-    var onUpdate = function () {
-        ws.send('update');
+    var onLocationUpdate = function () {
+        ws.send('location:update');
     };
-    location.on('update', onUpdate);
+    var onStatusUpdate = function () {
+        ws.send('status:update');
+    };
+    location.on('update', onLocationUpdate);
+    status.on('update', onStatusUpdate);
     ws.on('close', function () {
-        location.removeListener('update', onUpdate);
+        location.removeListener('update', onLocationUpdate);
+        status.removeListener('update', onStatusUpdate);
     });
 });
 
 app.use(express.static(path.resolve(__dirname, '../client')));
+app.use(express.static(path.resolve(__dirname, '../dist')));
 
-app.listen(8080, function () {
-    console.log('server is listening on 8080 port');
-});
 
 app.get('/api/data', function (req, res) {
+    var newId = locationId++;
+    location.save(newId);
     res.send({
-        id: id++,
+        id: newId,
         locations: location.get()
     });
 });
 
-app.get('api/diff/:id', function (req, res) {
+app.get('/api/data/:id', function (req, res) {
     var id = req.params.id;
     var diff = location.dry(id);
-    res.send(diff);
+    res.send({
+        diff: diff
+    });
 });
 
-setTimeout(function () {
+app.get('/api/status', function (req, res) {
+    var newId = statusId++;
+    status.save(newId);
+    res.send({
+        statuses: status.get(),
+        id: newId
+    })
+});
+
+app.get('/api/status/:id', function (req, res) {
+    var id = req.params.id;
+    var diff = status.dry(id);
+    res.send({
+        diff: diff
+    });
+});
+
+setInterval(function () {
     location.update();
 }, 500);
 
+setInterval(function () {
+    status.update();
+}, 1000);
+
+
+app.listen(8082, function () {
+    console.log('server is listening on 8080 port');
+});
