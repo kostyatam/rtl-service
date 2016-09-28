@@ -1,0 +1,10 @@
+each item in statuses
+    div.item(id=item.mac)
+        div.item__row mac: #{item.mac}
+        div.item__row name: #{item.status.name}
+        div.item__row
+            .status(class=item.status.isOnLine ? '' : 'status_offline')
+                -if (item.status.isOnLine)
+                    span online
+                -else
+                   span offline

@@ -30,7 +30,7 @@ let u = 0;
 Location.prototype.update = function () {
     var that = this;
     this.locations = this.locations.map(function (item, index) {
-        if (Math.random() < .5) return item;
+        if (Math.random() > .1) return item;
         item.location = faker.getLocation({
             lat: [item.location.lat - .01, item.location.lat + .01],
             lon: [item.location.lon - .01, item.location.lon + .01]

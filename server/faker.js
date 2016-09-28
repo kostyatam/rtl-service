@@ -6,17 +6,23 @@ var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 module.exports = new Faker;
 
 function Faker () {
-
+    this.usedMacs = {};
 }
 
 Faker.prototype.getMac = function getMac (delimeter) {
     var delimiter = delimeter || '-';
-    return [
-        (floor(random() * 256)).toString(16),
-        (floor(random() * 256)).toString(16),
-        (floor(random() * 256)).toString(16),
-        (floor(random() * 256)).toString(16)
-    ].join(delimiter);
+    var usedMacs = this.usedMacs;
+    var mac;
+    do {
+        mac = [
+            (floor(random() * 256)).toString(16),
+            (floor(random() * 256)).toString(16),
+            (floor(random() * 256)).toString(16),
+            (floor(random() * 256)).toString(16)
+        ].join(delimiter);
+    } while (usedMacs[mac]);
+    this.usedMacs[mac] = true;
+    return mac;
 };
 
 Faker.prototype.getLocation = function getLocation (params) {

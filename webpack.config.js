@@ -1,4 +1,6 @@
 'use strict';
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
     devtool: 'source-map',
@@ -7,6 +9,12 @@ module.exports = {
         path: __dirname + "/dist",
         filename: 'bundle-[name].js'
     },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'client/index.html'
+        }),
+        new ExtractTextPlugin("styles.css")
+    ],
     module: {
         loaders: [
             {
@@ -19,7 +27,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: 'style-loader!css-loader'
+                loader: ExtractTextPlugin.extract("style-loader", "css-loader")
             },
             {
                 test: /\.png$/,

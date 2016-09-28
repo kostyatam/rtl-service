@@ -38,7 +38,6 @@ wsServer.on('connection', function (ws) {
     });
 });
 
-app.use(express.static(path.resolve(__dirname, '../client')));
 app.use(express.static(path.resolve(__dirname, '../dist')));
 
 

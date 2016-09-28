@@ -25,12 +25,14 @@ Status.prototype.get = function () {
 Status.prototype.update = function () {
     var that = this;
     this.statuses = this.statuses.map(function (item) {
-        if (Math.random() > .5) return item;
-        item.status = faker.getStatus();
+        if (Math.random() > .1) return item;
+        item.status = {
+            name: item.status.name,
+            isOnLine: faker.getIsOnline()
+        };
         var saved = that.saved;
         for (var diff in saved) {
             if (!saved.hasOwnProperty(diff)) continue;
-            saved[diff][item.mac] = {} || saved[diff][item.mac]
             saved[diff][item.mac] = {status: item.status};
         };
         return item;
@@ -43,7 +45,7 @@ Status.prototype.save = function (id) {
 };
 
 Status.prototype.dry = function (id) {
-    var diff = Object.assign({}, this.saved[id]);
+    var diff = this.saved[id];
     this.saved[id] = {};
     return diff;
 };

@@ -1,10 +1,72 @@
 'use strict';
+import './main.css';
 import 'leaflet/dist/leaflet.css';
 import './prunecluster/LeafletStyleSheet.css';
 import getMap from './map';
-import LeftPanel from './left-panel.js';
+import LeftPanel from './left-panel/left-panel.js';
+import popup from './popup.jade';
 
-let getLocationData = () => {
+let locationData = getLocationData();
+let statusData = getStatusData();
+
+getMap().then(data => {
+    let {map, leafletView, PruneCluster} = data;
+    let socket = new WebSocket('ws://localhost:8081');
+
+    Promise.all([
+        locationData,
+        statusData
+    ]).then((promises) => {
+        let [locationData, statusData] = promises;
+        let markers = {};
+
+        locationData.locations.map(item => {
+            let {mac, location} = item;
+            let {lat, lon} = location;
+            let marker = new PruneCluster.Marker(lat, lon);
+            leafletView.RegisterMarker(marker);
+            markers[mac] = marker;
+        });
+
+        statusData.statuses.map(item => {
+            let {mac, status} = item;
+            markers[mac].data.popup = popup({
+                name: status.name,
+                mac
+            });
+        });
+
+        map.addLayer(leafletView);
+
+        let leftPanel = new LeftPanel('status', statusData.statuses);
+
+        socket.onmessage = getOnSocketMessage({
+            locationId: locationData.id,
+            statusId: statusData.id,
+            onStatusUpdate: function ({diff}) {
+                leftPanel.update(diff);
+            },
+            onLocationUpdate: function (res) {
+                requestAnimationFrame(function () {
+                    for (let mac in res.diff) {
+                        if (!res.diff.hasOwnProperty(mac)) return;
+                        let {lat, lon} = res.diff[mac];
+                        markers[mac].Move(lat, lon);
+                    }
+                });
+                typeof cb === 'function' && cb(res.diff);
+                leafletView.ProcessView();
+            }
+        });
+        promises = null;
+        locationData = null;
+        statusData = null;
+    });
+});
+
+
+
+function getLocationData () {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.onprogress = (event) => {
@@ -25,7 +87,7 @@ let getLocationData = () => {
     });
 };
 
-let getStatusData = () => {
+function getStatusData () {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
         xhr.onprogress = (event) => {
@@ -90,85 +152,6 @@ let getStatusDiff = (id) => {
     });
 };
 
-let locationData = getLocationData();
-let statusData = getStatusData();
-
-getMap().then(data => {
-    let {map, leafletView, PruneCluster} = data;
-    let socket = new WebSocket('ws://localhost:8081');
-
-    Promise.all([
-        locationData,
-        statusData
-    ]).then((promises) => {
-        let [locationData, statusData] = promises;
-        let markers = {};
-
-        locationData.locations.map(item => {
-            let {mac, location} = item;
-            let {lat, lon} = location;
-            let marker = new PruneCluster.Marker(lat, lon);
-            leafletView.RegisterMarker(marker);
-            markers[mac] = marker;
-        });
-
-        statusData.statuses.map(item => {
-            let {mac, status} = item;
-            markers[mac].data.status = status;
-        });
-
-        leafletView.PrepareLeafletMarker = (marker, data) => {
-            if (marker.getPopup()) {
-                marker.setPopupContent('data.status');
-            } else {
-                marker.bindPopup('data.status');
-            }
-        };
-
-        map.addLayer(leafletView);
-
-        let leftPanel = new LeftPanel('status', statusData.statuses);
-
-        socket.onmessage = getOnSocketMessage({
-            locationId: locationData.id,
-            statusId: statusData.id,
-            /*onStatusUpdate: getOnStatusUpdate(statusData.statuses, (diff) => {
-                leftPanel.update(diff);
-            }),
-            onLocationUpdate: getOnLocationUpdate(markers, (diff) => {
-                leafletView.ProcessView();
-            })*/
-        });
-        promises = null;
-        locationData = null;
-        statusData = null;
-    });
-});
-
-function getOnStatusUpdate (statuses, cb) {
-    return function (res) {
-        for (let i = 0; i < statuses.length; i++) {
-            let item = statuses[i]
-            let {mac} = item;
-            let changed = res.diff[mac];
-            if (!changed) continue;
-            statuses[i] = Object.assign({},item, changed);
-        };
-        typeof cb === 'function' && cb(res.diff);
-    }
-}
-function getOnLocationUpdate (markers, cb) {
-    return function (res) {
-        for (let mac in res.diff) {
-            if (!res.diff.hasOwnProperty(mac)) return;
-            let {lat, lon} = res.diff[mac];
-            markers[mac].position.lat = lat;
-            markers[mac].position.lng = lon;
-        }
-        typeof cb === 'function' && cb(res.diff);
-    }
-}
-
 function getOnSocketMessage ({locationId, statusId, onLocationUpdate, onStatusUpdate}) {
     let locationUpdating = false;
     let statusUpdating = false;
@@ -179,7 +162,7 @@ function getOnSocketMessage ({locationId, statusId, onLocationUpdate, onStatusUp
                 locationUpdating = true;
                 getLocationDiff(locationId)
                     .then(onLocationUpdate)
-                    .then(() => locationUpdating = false);
+                    .then(() => setTimeout(function () {locationUpdating = false}, 3000));
                 return
             }
         }
@@ -188,7 +171,7 @@ function getOnSocketMessage ({locationId, statusId, onLocationUpdate, onStatusUp
                 statusUpdating = true;
                 getStatusDiff(statusId)
                     .then(onStatusUpdate)
-                    .then(() => statusUpdating = false);
+                    .then(() => setTimeout(function () {statusUpdating = false}, 3000));
                 return
             }
         }
