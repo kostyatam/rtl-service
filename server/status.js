@@ -40,6 +40,10 @@ Status.prototype.update = function () {
     this.emit('update');
 };
 
+Status.prototype.remove = function (id) {
+    delete this.saved[id]
+};
+
 Status.prototype.save = function (id) {
     this.saved[id] = {};
 };

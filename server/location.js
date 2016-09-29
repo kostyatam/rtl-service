@@ -45,6 +45,10 @@ Location.prototype.update = function () {
     this.emit('update');
 };
 
+Location.prototype.remove = function (id) {
+    delete this.saved[id]
+};
+
 Location.prototype.save = function (id) {
     this.saved[id] = {};
 };

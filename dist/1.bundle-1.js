@@ -1,6 +1,6 @@
 webpackJsonp([1],{
 
-/***/ 11:
+/***/ 13:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -13011,7 +13011,7 @@ webpackJsonp([1],{
 
 /***/ },
 
-/***/ 12:
+/***/ 14:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {'use strict';
@@ -13989,11 +13989,11 @@ webpackJsonp([1],{
 	    module.exports.PruneCluster = PruneCluster;
 	    module.exports.PruneClusterForLeaflet = PruneClusterForLeaflet;
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)(module)))
 
 /***/ },
 
-/***/ 13:
+/***/ 15:
 /***/ function(module, exports) {
 
 	module.exports = function(module) {

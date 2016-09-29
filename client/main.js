@@ -6,12 +6,22 @@ import getMap from './map';
 import LeftPanel from './left-panel/left-panel.js';
 import popup from './popup.jade';
 
-let locationData = getLocationData();
-let statusData = getStatusData();
+let socket = new WebSocket('ws://localhost:8081');
+
+let locationData = getLocationData().then((res) => {
+    let {id} = res;
+    socket.send(JSON.stringify({locationId: id}));
+    return res;
+});
+
+let statusData = getStatusData().then((res) => {
+    let {id} = res;
+    socket.send(JSON.stringify({statusId: id}));
+    return res;
+});
 
 getMap().then(data => {
     let {map, leafletView, PruneCluster} = data;
-    let socket = new WebSocket('ws://localhost:8081');
 
     Promise.all([
         locationData,

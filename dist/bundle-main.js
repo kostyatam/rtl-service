@@ -106,17 +106,17 @@
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 	
-	__webpack_require__(22);
-	
 	__webpack_require__(2);
 	
-	__webpack_require__(8);
+	__webpack_require__(6);
 	
-	var _map = __webpack_require__(10);
+	__webpack_require__(10);
+	
+	var _map = __webpack_require__(12);
 	
 	var _map2 = _interopRequireDefault(_map);
 	
-	var _leftPanel = __webpack_require__(14);
+	var _leftPanel = __webpack_require__(16);
 	
 	var _leftPanel2 = _interopRequireDefault(_leftPanel);
 	
@@ -126,15 +126,27 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	var locationData = getLocationData();
-	var statusData = getStatusData();
+	var socket = new WebSocket('ws://localhost:8081');
+	
+	var locationData = getLocationData().then(function (res) {
+	    var id = res.id;
+	
+	    socket.send(JSON.stringify({ locationId: id }));
+	    return res;
+	});
+	
+	var statusData = getStatusData().then(function (res) {
+	    var id = res.id;
+	
+	    socket.send(JSON.stringify({ statusId: id }));
+	    return res;
+	});
 	
 	(0, _map2.default)().then(function (data) {
 	    var map = data.map;
 	    var leafletView = data.leafletView;
 	    var PruneCluster = data.PruneCluster;
 	
-	    var socket = new WebSocket('ws://localhost:8081');
 	
 	    Promise.all([locationData, statusData]).then(function (promises) {
 	        var _promises = promises;
@@ -343,16 +355,23 @@
 /* 3 */,
 /* 4 */,
 /* 5 */,
-/* 6 */,
-/* 7 */,
-/* 8 */
+/* 6 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
+/* 7 */,
+/* 8 */,
 /* 9 */,
 /* 10 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ },
+/* 11 */,
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -364,9 +383,9 @@
 	exports.default = function () {
 	    return new Promise(function (resolve, reject) {
 	        __webpack_require__.e/* nsure */(1, function (require) {
-	            __webpack_require__(11);
+	            __webpack_require__(13);
 	
-	            var _require = __webpack_require__(12);
+	            var _require = __webpack_require__(14);
 	
 	            var PruneCluster = _require.PruneCluster;
 	            var PruneClusterForLeaflet = _require.PruneClusterForLeaflet;
@@ -388,10 +407,10 @@
 	};
 
 /***/ },
-/* 11 */,
-/* 12 */,
 /* 13 */,
-/* 14 */
+/* 14 */,
+/* 15 */,
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -402,17 +421,17 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(15);
+	__webpack_require__(17);
 	
-	var _leftPanel = __webpack_require__(17);
+	var _leftPanel = __webpack_require__(19);
 	
 	var _leftPanel2 = _interopRequireDefault(_leftPanel);
 	
-	var _leftPanel__list = __webpack_require__(20);
+	var _leftPanel__list = __webpack_require__(22);
 	
 	var _leftPanel__list2 = _interopRequireDefault(_leftPanel__list);
 	
-	var _leftPanel__item = __webpack_require__(21);
+	var _leftPanel__item = __webpack_require__(23);
 	
 	var _leftPanel__item2 = _interopRequireDefault(_leftPanel__item);
 	
@@ -504,17 +523,17 @@
 	exports.default = LeftPanel;
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 16 */,
-/* 17 */
+/* 18 */,
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var jade = __webpack_require__(18);
+	var jade = __webpack_require__(20);
 	
 	module.exports = function template(locals) {
 	var buf = [];
@@ -525,7 +544,7 @@
 	}
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -745,7 +764,7 @@
 	    throw err;
 	  }
 	  try {
-	    str = str || __webpack_require__(19).readFileSync(filename, 'utf8')
+	    str = str || __webpack_require__(21).readFileSync(filename, 'utf8')
 	  } catch (ex) {
 	    rethrow(err, null, lineno)
 	  }
@@ -777,16 +796,16 @@
 
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var jade = __webpack_require__(18);
+	var jade = __webpack_require__(20);
 	
 	module.exports = function template(locals) {
 	var buf = [];
@@ -836,10 +855,10 @@
 	}
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var jade = __webpack_require__(18);
+	var jade = __webpack_require__(20);
 	
 	module.exports = function template(locals) {
 	var buf = [];
@@ -859,17 +878,10 @@
 	}
 
 /***/ },
-/* 22 */
-/***/ function(module, exports) {
-
-	// removed by extract-text-webpack-plugin
-
-/***/ },
-/* 23 */,
 /* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var jade = __webpack_require__(18);
+	var jade = __webpack_require__(20);
 	
 	module.exports = function template(locals) {
 	var buf = [];

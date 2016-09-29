@@ -2,6 +2,7 @@
 let config = require('./config');
 let WebSocketServer = new require('ws');
 
+
 let wsServer = new WebSocketServer.Server({
     port: 8081
 });
@@ -23,19 +24,47 @@ let path = require('path');
 var locationId = 0;
 var statusId = 0;
 
-wsServer.on('connection', function (ws) {
-    var onLocationUpdate = function () {
-        ws.send('location:update');
-    };
-    var onStatusUpdate = function () {
+function getOnStatusUpdate (ws) {
+    return function () {
         ws.send('status:update');
+    }
+};
+
+function getOnLocationUpdate (ws) {
+    return function () {
+        ws.send('location:update');
+    }
+};
+
+wsServer.on('connection', function (ws) {
+    let onLocationUpdate = getOnLocationUpdate(ws);
+    let onStatusUpdate = getOnStatusUpdate(ws);
+    let locationId, statusId;
+    let onClose = function () {
+        location
+            .removeListener('update', onLocationUpdate)
+            .remove(locationId);
+        status
+            .removeListener('update', onStatusUpdate)
+            .remove(statusId);
+    }
+    let onMessage = function (message) {
+        let data = JSON.parse(message);
+        if (data.locationId) {
+            locationId = data.locationId
+        }
+
+        if (data.statusId) {
+            locationId = data.statusId
+        }
     };
+
+    ws.on('close', onClose);
+
+    ws.on('message', onMessage);
+
     location.on('update', onLocationUpdate);
     status.on('update', onStatusUpdate);
-    ws.on('close', function () {
-        location.removeListener('update', onLocationUpdate);
-        status.removeListener('update', onStatusUpdate);
-    });
 });
 
 app.use(express.static(path.resolve(__dirname, '../dist')));
@@ -82,7 +111,6 @@ setInterval(function () {
 setInterval(function () {
     status.update();
 }, config.S);
-
 
 app.listen(8082, function () {
     console.log('server is listening on 8082 port');
